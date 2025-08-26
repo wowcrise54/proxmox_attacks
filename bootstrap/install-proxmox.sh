@@ -14,12 +14,12 @@ NC='\033[0m' # No Color
 
 # Configuration variables
 PROXMOX_VERSION="8.0"
-SDN_ZONE_NAME="infrastructure-zone"
-MANAGEMENT_VNET="management-net"
-INFRASTRUCTURE_VNET="infrastructure-net"
-SERVICES_VNET="services-net"
+SDN_ZONE_NAME="infrastructurezone"
+MANAGEMENT_VNET="managementnet"
+INFRASTRUCTURE_VNET="infrastructurenet"
+SERVICES_VNET="servicesnet"
 MANAGEMENT_CONTAINER_ID="100"
-MANAGEMENT_CONTAINER_NAME="infrastructure-mgmt"
+MANAGEMENT_CONTAINER_NAME="infrastructuremgmt"
 
 # Network configuration
 MANAGEMENT_SUBNET="10.100.1.0/24"
