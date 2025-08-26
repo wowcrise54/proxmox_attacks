@@ -1,0 +1,48 @@
+---
+# Base System Role Handlers
+
+- name: restart ssh
+  systemd:
+    name: ssh
+    state: restarted
+  listen: "restart ssh"
+
+- name: reload ssh
+  systemd:
+    name: ssh
+    state: reloaded
+  listen: "reload ssh"
+
+- name: restart systemd-timesyncd
+  systemd:
+    name: systemd-timesyncd
+    state: restarted
+  listen: "restart systemd-timesyncd"
+
+- name: restart unattended-upgrades
+  systemd:
+    name: unattended-upgrades
+    state: restarted
+  listen: "restart unattended-upgrades"
+
+- name: reload ufw
+  ufw:
+    state: reloaded
+  listen: "reload ufw"
+
+- name: restart fail2ban
+  systemd:
+    name: fail2ban
+    state: restarted
+  listen: "restart fail2ban"
+
+- name: restart rsyslog
+  systemd:
+    name: rsyslog
+    state: restarted
+  listen: "restart rsyslog"
+
+- name: reload systemctl
+  systemd:
+    daemon_reload: true
+  listen: "reload systemctl"

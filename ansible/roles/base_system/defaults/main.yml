@@ -1,0 +1,133 @@
+---
+# Base System Role Default Variables
+
+# System Configuration
+system_timezone: "UTC"
+system_locale: "en_US.UTF-8"
+
+# Essential packages for all systems
+base_packages:
+  - curl
+  - wget
+  - git
+  - vim
+  - htop
+  - tree
+  - unzip
+  - rsync
+  - net-tools
+  - iotop
+  - iftop
+  - tcpdump
+  - nmap
+  - telnet
+  - nc
+  - jq
+  - yq
+  - python3
+  - python3-pip
+  - software-properties-common
+  - apt-transport-https
+  - ca-certificates
+  - gnupg
+  - lsb-release
+  - cloud-init
+  - cloud-utils
+  - qemu-guest-agent
+  - ufw
+  - fail2ban
+  - unattended-upgrades
+  - logrotate
+
+# Additional packages (can be overridden per host/group)
+additional_packages: []
+
+# SSH Configuration
+ssh_config:
+  port: 22
+  permit_root_login: false
+  password_authentication: true
+  pubkey_authentication: true
+  x11_forwarding: false
+  max_auth_tries: 3
+  client_alive_interval: 300
+  client_alive_count_max: 2
+
+# System limits configuration
+system_limits:
+  - domain: '*'
+    type: soft
+    item: nofile
+    value: 65536
+  - domain: '*'  
+    type: hard
+    item: nofile
+    value: 65536
+  - domain: '*'
+    type: soft
+    item: nproc
+    value: 32768
+  - domain: '*'
+    type: hard
+    item: nproc
+    value: 32768
+
+# Kernel parameters
+kernel_parameters:
+  - key: net.ipv4.ip_forward
+    value: 1
+  - key: net.ipv6.conf.all.forwarding
+    value: 1
+  - key: net.bridge.bridge-nf-call-iptables
+    value: 1
+  - key: net.bridge.bridge-nf-call-ip6tables  
+    value: 1
+  - key: vm.swappiness
+    value: 10
+  - key: vm.max_map_count
+    value: 262144
+  - key: fs.file-max
+    value: 2097152
+
+# Firewall rules
+firewall_rules:
+  - rule: allow
+    port: 22
+    comment: "SSH access"
+  - rule: allow
+    port: 80
+    comment: "HTTP access"  
+  - rule: allow
+    port: 443
+    comment: "HTTPS access"
+  - rule: allow
+    src: "10.100.0.0/16"
+    comment: "Internal network access"
+
+# System users (can be overridden)
+system_users: []
+
+# Monitoring configuration
+enable_system_monitoring: true
+monitoring_interval: 300  # seconds
+
+# Log retention
+log_retention_days: 30
+log_max_size: "100M"
+
+# Security settings
+enable_fail2ban: true
+enable_auto_updates: true
+auto_reboot_if_required: false
+
+# Unattended upgrades configuration
+unattended_upgrades:
+  allowed_origins:
+    - "${distro_id}:${distro_codename}-security"
+    - "${distro_id}ESMApps:${distro_codename}-apps-security"
+    - "${distro_id}ESM:${distro_codename}-infra-security"
+  package_blacklist: []
+  auto_reboot: false
+  auto_reboot_time: "02:00"
+  auto_remove_unused_dependencies: true
+  automatic_reboot_with_users: false

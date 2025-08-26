@@ -1,0 +1,36 @@
+# SSH daemon configuration - Managed by Ansible
+Port {{ ssh_config.port }}
+Protocol 2
+
+# Security settings
+PermitRootLogin {{ 'yes' if ssh_config.permit_root_login else 'no' }}
+PasswordAuthentication {{ 'yes' if ssh_config.password_authentication else 'no' }}
+PubkeyAuthentication {{ 'yes' if ssh_config.pubkey_authentication else 'no' }}
+AuthorizedKeysFile .ssh/authorized_keys
+
+# Connection settings  
+MaxAuthTries {{ ssh_config.max_auth_tries }}
+ClientAliveInterval {{ ssh_config.client_alive_interval }}
+ClientAliveCountMax {{ ssh_config.client_alive_count_max }}
+LoginGraceTime 30
+MaxStartups 10:30:60
+
+# Feature settings
+X11Forwarding {{ 'yes' if ssh_config.x11_forwarding else 'no' }}
+PrintMotd yes
+PrintLastLog yes
+TCPKeepAlive yes
+UsePrivilegeSeparation yes
+StrictModes yes
+IgnoreRhosts yes
+HostbasedAuthentication no
+PermitEmptyPasswords no
+ChallengeResponseAuthentication no
+UsePAM yes
+
+# Logging
+SyslogFacility AUTH
+LogLevel INFO
+
+# Banner
+Banner /etc/issue.net

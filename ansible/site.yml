@@ -1,0 +1,113 @@
+---
+# Main site playbook for Proxmox Infrastructure
+# This playbook configures the entire infrastructure stack
+
+- name: Infrastructure Base Configuration
+  hosts: all
+  gather_facts: true
+  become: true
+  tags: ['base', 'always']
+  
+  tasks:
+    - name: Include base system configuration
+      include_role:
+        name: base_system
+      tags: ['base']
+
+- name: Configure Management Infrastructure  
+  hosts: management
+  gather_facts: true
+  become: true
+  tags: ['management']
+  
+  tasks:
+    - name: Configure management container
+      include_role:
+        name: management_container
+      tags: ['management']
+
+- name: Configure Docker Infrastructure
+  hosts: docker_hosts
+  gather_facts: true
+  become: true
+  tags: ['docker']
+  
+  tasks:
+    - name: Configure Docker hosts
+      include_role:
+        name: docker_host
+      tags: ['docker']
+
+- name: Configure Kubernetes Infrastructure
+  hosts: kubernetes
+  gather_facts: true
+  become: true
+  tags: ['kubernetes', 'k8s']
+  
+  tasks:
+    - name: Configure Kubernetes base
+      include_role:
+        name: kubernetes_base
+      tags: ['k8s-base']
+
+- name: Configure Kubernetes Masters
+  hosts: kubernetes_masters
+  gather_facts: true
+  become: true
+  tags: ['kubernetes', 'k8s', 'k8s-master']
+  serial: 1
+  
+  tasks:
+    - name: Configure Kubernetes master
+      include_role:
+        name: kubernetes_master
+      tags: ['k8s-master']
+
+- name: Configure Kubernetes Workers
+  hosts: kubernetes_workers
+  gather_facts: true
+  become: true
+  tags: ['kubernetes', 'k8s', 'k8s-worker']
+  
+  tasks:
+    - name: Configure Kubernetes worker
+      include_role:
+        name: kubernetes_worker
+      tags: ['k8s-worker']
+
+- name: Configure Monitoring
+  hosts: infrastructure
+  gather_facts: true
+  become: true
+  tags: ['monitoring']
+  
+  tasks:
+    - name: Configure monitoring agents
+      include_role:
+        name: monitoring
+      tags: ['monitoring']
+      when: enable_monitoring | default(true)
+
+- name: Configure Security
+  hosts: all
+  gather_facts: true
+  become: true
+  tags: ['security']
+  
+  tasks:
+    - name: Apply security hardening
+      include_role:
+        name: security_hardening
+      tags: ['security']
+
+- name: Final Infrastructure Validation
+  hosts: all
+  gather_facts: true
+  become: true
+  tags: ['validate']
+  
+  tasks:
+    - name: Validate infrastructure
+      include_role:
+        name: infrastructure_validation
+      tags: ['validate']

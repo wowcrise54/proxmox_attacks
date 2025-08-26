@@ -1,0 +1,85 @@
+#cloud-config
+autoinstall:
+  version: 1
+  
+  # Locale and keyboard
+  locale: en_US.UTF-8
+  keyboard:
+    layout: us
+    variant: ''
+  
+  # Network configuration - use DHCP
+  network:
+    ethernets:
+      any:
+        match:
+          name: "e*"
+        dhcp4: true
+    version: 2
+  
+  # APT configuration
+  apt:
+    geoip: true
+    preserve_sources_list: false
+    primary:
+      - arches: [amd64, i386]
+        uri: http://archive.ubuntu.com/ubuntu
+      - arches: [default]
+        uri: http://ports.ubuntu.com/ubuntu-ports
+  
+  # Identity configuration
+  identity:
+    hostname: ubuntu-template
+    username: ubuntu
+    password: '$6$rounds=4096$aQ7U.4qGGGNn$JWB6C3xNMz6/W3ESMhJ5kuKhg.Qhv7.j/DkHYhWPQy/Uy.1qJEXjbfGdKbF9QH.GX1E1.0WvJHZnZ2j4ZbJj4/'
+    realname: Ubuntu User
+  
+  # SSH configuration
+  ssh:
+    install-server: true
+    allow-pw: true
+    authorized-keys: []
+  
+  # Package selection
+  packages:
+    - openssh-server
+    - cloud-init
+    - cloud-guest-utils
+    - cloud-utils
+    - qemu-guest-agent
+    - curl
+    - wget
+    - git
+    - vim
+    - htop
+    - net-tools
+  
+  # User data
+  user-data:
+    disable_root: false
+    ssh_pwauth: true
+  
+  # Storage configuration
+  storage:
+    layout:
+      name: direct
+    swap:
+      size: 0
+  
+  # Commands to run late in the installation
+  late-commands:
+    - |
+      # Enable qemu-guest-agent
+      systemctl enable qemu-guest-agent
+      
+      # Configure cloud-init to use network config
+      echo 'network: {config: disabled}' > /target/etc/cloud/cloud.cfg.d/99-disable-network-config.cfg
+      
+      # Remove subiquity cloud-init config
+      rm -f /target/etc/cloud/cloud.cfg.d/subiquity-disable-cloudinit-networking.cfg
+      
+      # Clean up installer files
+      rm -rf /target/var/log/installer
+      
+    # Signal completion
+    - touch /target/var/lib/cloud/instance/boot-finished

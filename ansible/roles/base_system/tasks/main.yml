@@ -1,0 +1,205 @@
+---
+# Base System Configuration Tasks
+
+- name: Update APT package cache
+  apt:
+    update_cache: true
+    cache_valid_time: 3600
+  tags: ['packages']
+
+- name: Upgrade all packages to latest version
+  apt:
+    upgrade: dist
+    autoremove: true
+    autoclean: true
+  register: package_upgrade
+  tags: ['packages']
+
+- name: Install essential system packages
+  apt:
+    name: "{{ base_packages }}"
+    state: present
+    update_cache: true
+  tags: ['packages']
+
+- name: Install additional packages if specified
+  apt:
+    name: "{{ additional_packages }}"
+    state: present
+  when: additional_packages is defined and additional_packages | length > 0
+  tags: ['packages']
+
+- name: Configure system timezone
+  timezone:
+    name: "{{ system_timezone }}"
+  notify: restart systemd-timesyncd
+  tags: ['timezone']
+
+- name: Configure NTP synchronization
+  systemd:
+    name: systemd-timesyncd
+    enabled: true
+    state: started
+  tags: ['ntp']
+
+- name: Configure system locale
+  locale_gen:
+    name: "{{ system_locale }}"
+    state: present
+  tags: ['locale']
+
+- name: Set system hostname
+  hostname:
+    name: "{{ inventory_hostname }}"
+  tags: ['hostname']
+
+- name: Update /etc/hosts with hostname
+  lineinfile:
+    path: /etc/hosts
+    regexp: '^127\.0\.1\.1'
+    line: "127.0.1.1 {{ inventory_hostname }} {{ inventory_hostname_short }}"
+    backup: true
+  tags: ['hostname']
+
+- name: Configure SSH daemon
+  template:
+    src: sshd_config.j2
+    dest: /etc/ssh/sshd_config
+    backup: true
+    owner: root
+    group: root
+    mode: '0644'
+  notify: restart ssh
+  tags: ['ssh']
+
+- name: Ensure SSH service is enabled and running
+  systemd:
+    name: ssh
+    enabled: true
+    state: started
+  tags: ['ssh']
+
+- name: Configure sudo without password for ansible user
+  lineinfile:
+    path: /etc/sudoers.d/99-ansible-user
+    line: "{{ ansible_user }} ALL=(ALL) NOPASSWD:ALL"
+    create: true
+    owner: root
+    group: root
+    mode: '0440'
+    validate: 'visudo -cf %s'
+  tags: ['sudo']
+
+- name: Create system users if specified
+  user:
+    name: "{{ item.name }}"
+    groups: "{{ item.groups | default([]) }}"
+    shell: "{{ item.shell | default('/bin/bash') }}"
+    create_home: true
+    state: present
+  loop: "{{ system_users | default([]) }}"
+  tags: ['users']
+
+- name: Configure system limits
+  pam_limits:
+    domain: "{{ item.domain }}"
+    limit_type: "{{ item.type }}"
+    limit_item: "{{ item.item }}"
+    value: "{{ item.value }}"
+  loop: "{{ system_limits }}"
+  tags: ['limits']
+
+- name: Configure kernel parameters
+  sysctl:
+    name: "{{ item.key }}"
+    value: "{{ item.value }}"
+    state: present
+    reload: true
+  loop: "{{ kernel_parameters }}"
+  tags: ['kernel']
+
+- name: Configure log rotation
+  template:
+    src: logrotate.conf.j2
+    dest: /etc/logrotate.d/system-logs
+    owner: root
+    group: root
+    mode: '0644'
+  tags: ['logging']
+
+- name: Setup system monitoring directories
+  file:
+    path: "{{ item }}"
+    state: directory
+    owner: root
+    group: root
+    mode: '0755'
+  loop:
+    - /var/log/system-monitoring
+    - /opt/scripts
+    - /opt/backups
+  tags: ['directories']
+
+- name: Install system monitoring script
+  template:
+    src: system-monitor.sh.j2
+    dest: /opt/scripts/system-monitor.sh
+    owner: root
+    group: root
+    mode: '0755'
+  tags: ['monitoring']
+
+- name: Setup cron job for system monitoring
+  cron:
+    name: "System monitoring"
+    minute: "*/5"
+    job: "/opt/scripts/system-monitor.sh >> /var/log/system-monitoring/monitor.log 2>&1"
+    user: root
+  when: enable_system_monitoring | default(true)
+  tags: ['monitoring', 'cron']
+
+- name: Configure automatic security updates
+  template:
+    src: 50unattended-upgrades.j2
+    dest: /etc/apt/apt.conf.d/50unattended-upgrades
+    owner: root
+    group: root
+    mode: '0644'
+  notify: restart unattended-upgrades
+  tags: ['security', 'auto-updates']
+
+- name: Enable unattended upgrades
+  systemd:
+    name: unattended-upgrades
+    enabled: true
+    state: started
+  tags: ['security', 'auto-updates']
+
+- name: Configure firewall rules
+  ufw:
+    rule: "{{ item.rule }}"
+    port: "{{ item.port | default(omit) }}"
+    proto: "{{ item.proto | default('tcp') }}"
+    src: "{{ item.src | default('any') }}"
+    comment: "{{ item.comment | default('') }}"
+  loop: "{{ firewall_rules }}"
+  notify: reload ufw
+  tags: ['firewall']
+
+- name: Enable UFW firewall
+  ufw:
+    state: enabled
+    policy: deny
+    direction: incoming
+  tags: ['firewall']
+
+- name: Display system information
+  debug:
+    msg:
+      - "System configuration completed for: {{ inventory_hostname }}"
+      - "IP Address: {{ ansible_default_ipv4.address }}"
+      - "OS: {{ ansible_distribution }} {{ ansible_distribution_version }}"
+      - "Kernel: {{ ansible_kernel }}"
+      - "Memory: {{ ansible_memtotal_mb }}MB"
+      - "CPU: {{ ansible_processor_vcpus }} vCPU"
+  tags: ['info']
