@@ -144,7 +144,6 @@ configure_subnets() {
         pvesh create /cluster/sdn/vnets/$MANAGEMENT_VNET/subnets \
             --subnet "$MANAGEMENT_SUBNET" \
             --type subnet \
-            --vnet "$MANAGEMENT_VNET" \
             --gateway "10.100.1.1" \
             --snat 1 \
             --dhcp-range "start-address=$DHCP_RANGE_START_MGMT,end-address=$DHCP_RANGE_END_MGMT"
@@ -156,7 +155,6 @@ configure_subnets() {
         pvesh create /cluster/sdn/vnets/$INFRASTRUCTURE_VNET/subnets \
             --subnet "$INFRASTRUCTURE_SUBNET" \
             --type subnet \
-            --vnet "$INFRASTRUCTURE_VNET" \
             --gateway "10.100.2.1" \
             --snat 1 \
             --dhcp-range "start-address=$DHCP_RANGE_START_INFRA,end-address=$DHCP_RANGE_END_INFRA"
@@ -168,7 +166,6 @@ configure_subnets() {
         pvesh create /cluster/sdn/vnets/$SERVICES_VNET/subnets \
             --subnet "$SERVICES_SUBNET" \
             --type subnet \
-            --vnet "$SERVICES_VNET"
             --gateway "10.100.3.1" \
             --snat 1 \
             --dhcp-range "start-address=10.100.3.100,end-address=10.100.3.200"
