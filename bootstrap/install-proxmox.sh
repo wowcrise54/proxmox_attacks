@@ -174,7 +174,7 @@ configure_subnets() {
 
 apply_sdn_configuration() {
     log "Applying SDN configuration..."
-    pvesh set /cluster/sdn --apply 1
+    pvesh set /cluster/sdn
     sleep 5
     systemctl reload-or-restart frr
     systemctl reload-or-restart dnsmasq
