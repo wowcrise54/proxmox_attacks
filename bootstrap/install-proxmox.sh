@@ -103,9 +103,9 @@ configure_sdn() {
     if ! pvesh get /cluster/sdn/zones/$SDN_ZONE_NAME >/dev/null 2>&1; then
         info "Creating SDN Zone: $SDN_ZONE_NAME"
         pvesh create /cluster/sdn/zones \
-            --zoneid "$SDN_ZONE_NAME" \
+            --zone "$SDN_ZONE_NAME" \
             --type simple \
-            --bridge vmbr1
+            --dhcp dnsmasq
     else
         info "SDN Zone $SDN_ZONE_NAME already exists"
     fi
@@ -116,7 +116,6 @@ configure_sdn() {
         pvesh create /cluster/sdn/vnets \
             --vnet "$MANAGEMENT_VNET" \
             --zone "$SDN_ZONE_NAME" \
-            --tag 100
     fi
     
     # Create Infrastructure VNET
@@ -125,7 +124,6 @@ configure_sdn() {
         pvesh create /cluster/sdn/vnets \
             --vnet "$INFRASTRUCTURE_VNET" \
             --zone "$SDN_ZONE_NAME" \
-            --tag 200
     fi
     
     # Create Services VNET
@@ -134,7 +132,6 @@ configure_sdn() {
         pvesh create /cluster/sdn/vnets \
             --vnet "$SERVICES_VNET" \
             --zone "$SDN_ZONE_NAME" \
-            --tag 300
     fi
 }
 
@@ -146,6 +143,8 @@ configure_subnets() {
         info "Creating Management subnet: $MANAGEMENT_SUBNET"
         pvesh create /cluster/sdn/vnets/$MANAGEMENT_VNET/subnets \
             --subnet "$MANAGEMENT_SUBNET" \
+            --type subnet \
+            --vnet "$MANAGEMENT_VNET" \
             --gateway "10.100.1.1" \
             --snat 1 \
             --dhcp-range "start-address=$DHCP_RANGE_START_MGMT,end-address=$DHCP_RANGE_END_MGMT"
@@ -156,6 +155,8 @@ configure_subnets() {
         info "Creating Infrastructure subnet: $INFRASTRUCTURE_SUBNET"
         pvesh create /cluster/sdn/vnets/$INFRASTRUCTURE_VNET/subnets \
             --subnet "$INFRASTRUCTURE_SUBNET" \
+            --type subnet \
+            --vnet "$INFRASTRUCTURE_VNET" \
             --gateway "10.100.2.1" \
             --snat 1 \
             --dhcp-range "start-address=$DHCP_RANGE_START_INFRA,end-address=$DHCP_RANGE_END_INFRA"
@@ -166,6 +167,8 @@ configure_subnets() {
         info "Creating Services subnet: $SERVICES_SUBNET"
         pvesh create /cluster/sdn/vnets/$SERVICES_VNET/subnets \
             --subnet "$SERVICES_SUBNET" \
+            --type subnet \
+            --vnet "$SERVICES_VNET"
             --gateway "10.100.3.1" \
             --snat 1 \
             --dhcp-range "start-address=10.100.3.100,end-address=10.100.3.200"
