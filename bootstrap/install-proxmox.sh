@@ -176,8 +176,6 @@ apply_sdn_configuration() {
     log "Applying SDN configuration..."
     pvesh set /cluster/sdn
     sleep 5
-    systemctl reload-or-restart frr
-    systemctl reload-or-restart dnsmasq
 }
 
 create_management_container() {
