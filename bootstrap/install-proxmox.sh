@@ -30,6 +30,9 @@ DHCP_RANGE_END_MGMT="10.100.1.200"
 DHCP_RANGE_START_INFRA="10.100.2.100"
 DHCP_RANGE_END_INFRA="10.100.2.200"
 
+# Static IP configuration for management container
+MANAGEMENT_CONTAINER_IP="10.100.1.10/24"
+
 log() {
     echo -e "${GREEN}[$(date +'%Y-%m-%d %H:%M:%S')]${NC} $1"
 }
@@ -204,7 +207,7 @@ create_management_container() {
         --memory 4096 \
         --cores 2 \
         --rootfs local-lvm:20 \
-        --net0 name=eth0,bridge=$MANAGEMENT_VNET,firewall=1,ip=dhcp \
+        --net0 name=eth0,bridge=$MANAGEMENT_VNET,firewall=1,ip=$MANAGEMENT_CONTAINER_IP,gw=10.100.1.1 \
         --unprivileged 1 \
         --start 1 \
         --onboot 1
