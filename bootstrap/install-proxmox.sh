@@ -15,9 +15,9 @@ NC='\033[0m' # No Color
 # Configuration variables
 PROXMOX_VERSION="8.0"
 SDN_ZONE_NAME="infranet"
-MANAGEMENT_VNET="managementnet"
-INFRASTRUCTURE_VNET="infrastructurenet"
-SERVICES_VNET="servicesnet"
+MANAGEMENT_VNET="mgmtnet"
+INFRASTRUCTURE_VNET="infranet"
+SERVICES_VNET="svcnet"
 MANAGEMENT_CONTAINER_ID="100"
 MANAGEMENT_CONTAINER_NAME="infrastructuremgmt"
 
