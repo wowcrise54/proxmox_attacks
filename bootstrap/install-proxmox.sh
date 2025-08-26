@@ -96,17 +96,8 @@ install_prerequisites() {
 configure_sdn() {
     log "Configuring Software Defined Networking (SDN)..."
     
-    # Check if SDN is already enabled
-    if pvesh get /cluster/sdn/status >/dev/null 2>&1; then
-        info "SDN is already configured"
-    else
-        info "Enabling SDN..."
-        # Enable SDN if not already enabled
-        pvesh set /cluster/sdn --enable 1
-        
-        # Wait a moment for SDN to initialize
-        sleep 3
-    fi
+    # SDN is enabled by default, proceeding with configuration
+    info "SDN is available, proceeding with network configuration"
     
     # Create SDN Zone
     if ! pvesh get /cluster/sdn/zones/$SDN_ZONE_NAME >/dev/null 2>&1; then

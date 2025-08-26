@@ -54,17 +54,13 @@ apt-get install -y \
 ```
 
 ### 3. Improved Error Handling
-Added better checking for SDN status before attempting to enable it:
+Updated configuration to work with installations where SDN is enabled by default:
 ```bash
-# Check if SDN is already enabled
-if pvesh get /cluster/sdn/status >/dev/null 2>&1; then
-    info "SDN is already configured"
-else
-    info "Enabling SDN..."
-    pvesh set /cluster/sdn --enable 1
-    sleep 3
-fi
+# SDN is enabled by default, proceeding with configuration
+info "SDN is available, proceeding with network configuration"
 ```
+
+**Note:** In some Proxmox installations, SDN may be enabled by default. The script has been updated to handle this scenario gracefully.
 
 ## Common SDN Issues and Solutions
 
