@@ -115,7 +115,7 @@ configure_sdn() {
         info "Creating Management VNET: $MANAGEMENT_VNET"
         pvesh create /cluster/sdn/vnets \
             --vnet "$MANAGEMENT_VNET" \
-            --zone "$SDN_ZONE_NAME" \
+            --zone "$SDN_ZONE_NAME"
     fi
     
     # Create Infrastructure VNET
@@ -123,7 +123,7 @@ configure_sdn() {
         info "Creating Infrastructure VNET: $INFRASTRUCTURE_VNET"
         pvesh create /cluster/sdn/vnets \
             --vnet "$INFRASTRUCTURE_VNET" \
-            --zone "$SDN_ZONE_NAME" \
+            --zone "$SDN_ZONE_NAME"
     fi
     
     # Create Services VNET
@@ -131,7 +131,7 @@ configure_sdn() {
         info "Creating Services VNET: $SERVICES_VNET"
         pvesh create /cluster/sdn/vnets \
             --vnet "$SERVICES_VNET" \
-            --zone "$SDN_ZONE_NAME" \
+            --zone "$SDN_ZONE_NAME"
     fi
 }
 
